@@ -4,6 +4,7 @@ from app.models import User
 from fastapi import Depends
 from sqlmodel import select
 from sqlalchemy.exc import IntegrityError
+from sqlalchemy import or_
 
 cli = typer.Typer()
 
@@ -74,7 +75,33 @@ def delete_user(username: str):
         db.delete(user)
         db.commit()
         print(f'{username} deleted')
+        
+@cli.command()
+def get_user_from_identifier(identifier: str = typer.Argument(..., help="Email or username to search for (partial match)")):
+    """Search for a user by partial email or username match.""" # documentation for the command
+
+    with get_session() as db:
+        user = db.exec(select(User).where(or_(User.email.like(f'%{identifier}%'), User.username.like(f'%{identifier}%')))).first()
+        if not user:
+            print(f'{identifier} not found! Unable to find user.')
+            return
+        print(user)
+
+@cli.command()
+def list_users(limit: int = typer.Argument(10, help="Maximum number of users to display"),
+    offset: int = typer.Argument(0, help="Number of users to skip from the start")
+):
+    """List the first N users of the database to be used by a paginated table.""" # documentation for the command
+
+    with get_session() as db:
+        users = db.exec(select(User).offset(offset).limit(limit)).all()
+        if not users:
+            print("No users found!")
+            return
+        for user in users:
+            print(user)
 
 
 if __name__ == "__main__":
     cli()
+    
