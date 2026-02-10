@@ -10,6 +10,8 @@ cli = typer.Typer()
 
 @cli.command()
 def initialize():
+    """Initialize the database with a user, bob.""" # documentation for the command
+
     with get_session() as db: # Get a connection to the database
         drop_all() # delete all tables
         create_db_and_tables() #recreate all tables
@@ -21,6 +23,8 @@ def initialize():
 
 @cli.command()
 def get_user(username:str):
+    """get and print a user by their username.""" # documentation for the command
+
     with get_session() as db: # Get a connection to the database
         user = db.exec(select(User).where(User.username == username)).first()
         if not user:
@@ -30,6 +34,8 @@ def get_user(username:str):
 
 @cli.command()
 def get_all_users():
+    """get and printall users in the database.""" # documentation for the command
+    
     with get_session() as db:
         all_users = db.exec(select(User)).all()
         if not all_users:
@@ -41,6 +47,8 @@ def get_all_users():
 
 @cli.command()
 def change_email(username: str, new_email:str):
+    """change the email of a user with the given username (argument 1) to the new email (argument 2).""" # documentation for the command
+    
     with get_session() as db: # Get a connection to the database
         user = db.exec(select(User).where(User.username == username)).first()
         if not user:
@@ -53,6 +61,8 @@ def change_email(username: str, new_email:str):
 
 @cli.command()
 def create_user(username: str, email:str, password: str):
+    """create a new user with the given username, email, and password.""" # documentation for the command
+
     with get_session() as db: # Get a connection to the database
         newuser = User(username=username, email=email, password=password)
         try:
@@ -67,6 +77,7 @@ def create_user(username: str, email:str, password: str):
 
 @cli.command()
 def delete_user(username: str):
+    """Delete a user by their username.""" # documentation for the command
     with get_session() as db:
         user = db.exec(select(User).where(User.username == username)).first()
         if not user:
